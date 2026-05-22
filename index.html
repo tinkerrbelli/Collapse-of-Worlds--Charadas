@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CoW - Alice Wonderland Charadas</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --purple-dark: #080018;
+      --purple: #5b1ac9;
+      --blue: #1b9cff;
+      --pink: #ff4fd8;
+      --gold: #ffe0a3;
+      --white-soft: rgba(255,255,255,0.86);
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: 'Poppins', sans-serif;
+      color: white;
+      overflow-x: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 26px;
+      background:
+        radial-gradient(circle at 20% 15%, rgba(74, 214, 255, 0.26), transparent 30%),
+        radial-gradient(circle at 85% 20%, rgba(255, 79, 216, 0.18), transparent 28%),
+        radial-gradient(circle at 50% 90%, rgba(111, 32, 255, 0.45), transparent 45%),
+        linear-gradient(145deg, #060012, #12002d 45%, #00152e);
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: radial-gradient(circle, black, transparent 72%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wonderland-bg {
+      position: fixed;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .moon {
+      position: absolute;
+      top: 7%;
+      right: 8%;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #ffffff, #b7e6ff 60%, transparent 70%);
+      box-shadow: 0 0 60px rgba(83,202,255,0.7);
+      opacity: 0.78;
+      animation: moonPulse 5s ease-in-out infinite;
+    }
+
+    @keyframes moonPulse {
+      0%, 100% { transform: scale(1); opacity: 0.78; }
+      50% { transform: scale(1.06); opacity: 1; }
+    }
+
+    .hill {
+      position: absolute;
+      bottom: -90px;
+      width: 75vw;
+      height: 230px;
+      background: rgba(8, 0, 25, 0.86);
+      border-radius: 50% 50% 0 0;
+      filter: blur(1px);
+    }
+
+    .hill.left { left: -18vw; }
+    .hill.right { right: -20vw; bottom: -110px; }
+
+    .mushroom {
+      position: absolute;
+      bottom: 38px;
+      width: 74px;
+      height: 78px;
+      opacity: 0.65;
+      animation: sway 4s ease-in-out infinite;
+    }
+
+    .mushroom::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 74px;
+      height: 38px;
+      background: linear-gradient(135deg, rgba(100, 198, 255, 0.75), rgba(152, 45, 255, 0.8));
+      border-radius: 60px 60px 20px 20px;
+      box-shadow: 0 0 20px rgba(98, 202, 255, 0.35);
+    }
+
+    .mushroom::after {
+      content: "";
+      position: absolute;
+      left: 26px;
+      top: 32px;
+      width: 22px;
+      height: 48px;
+      background: rgba(255,255,255,0.58);
+      border-radius: 10px;
+    }
+
+    .m1 { left: 7%; transform: scale(0.9); }
+    .m2 { right: 13%; transform: scale(1.15); animation-delay: 0.8s; }
+    .m3 { left: 82%; bottom: 120px; transform: scale(0.65); animation-delay: 1.4s; }
+
+    @keyframes sway {
+      0%,100% { rotate: -2deg; }
+      50% { rotate: 3deg; }
+    }
+
+    .character {
+      position: absolute;
+      font-size: clamp(3rem, 7vw, 6rem);
+      opacity: 0.18;
+      filter: drop-shadow(0 0 18px rgba(120,205,255,0.5));
+      animation: drift 8s ease-in-out infinite;
+      user-select: none;
+    }
+
+    .rabbit { left: 6%; top: 17%; }
+    .cat { right: 9%; top: 40%; animation-delay: 1.5s; }
+    .hat { left: 10%; bottom: 18%; animation-delay: 2.6s; }
+    .cards { right: 15%; bottom: 16%; animation-delay: 3.2s; }
+    .key { left: 47%; top: 7%; animation-delay: 0.6s; }
+
+    @keyframes drift {
+      0%,100% { transform: translateY(0) rotate(-3deg); }
+      50% { transform: translateY(-16px) rotate(4deg); }
+    }
+
+    .glow-orb {
+      position: absolute;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: rgba(160,220,255,0.9);
+      box-shadow: 0 0 18px rgba(127,220,255,1);
+      animation: floatUp 11s linear infinite;
+    }
+
+    @keyframes floatUp {
+      from { transform: translateY(110vh) scale(0.2); opacity: 0; }
+      15% { opacity: 1; }
+      to { transform: translateY(-15vh) scale(1.15); opacity: 0; }
+    }
+
+    .container {
+      width: 100%;
+      max-width: 980px;
+      position: relative;
+      z-index: 5;
+      border: 1px solid rgba(255,255,255,0.13);
+      border-radius: 34px;
+      padding: clamp(22px, 5vw, 48px);
+      background: rgba(9, 3, 30, 0.72);
+      backdrop-filter: blur(16px);
+      box-shadow:
+        0 0 45px rgba(91, 26, 201, 0.45),
+        inset 0 0 35px rgba(255,255,255,0.035);
+      overflow: hidden;
+    }
+
+    .container::before {
+      content: "";
+      position: absolute;
+      inset: -2px;
+      background: linear-gradient(120deg, transparent, rgba(60,197,255,0.25), transparent, rgba(255,79,216,0.22), transparent);
+      z-index: -1;
+      animation: borderLight 7s linear infinite;
+    }
+
+    @keyframes borderLight {
+      0% { transform: translateX(-40%); }
+      100% { transform: translateX(40%); }
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+
+    .logo {
+      width: 86px;
+      height: 86px;
+      border: 3px solid rgba(255,255,255,0.72);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cinzel', serif;
+      font-size: 1.65rem;
+      font-weight: 900;
+      color: white;
+      letter-spacing: 2px;
+      position: relative;
+      box-shadow: 0 0 28px rgba(69, 194, 255, 0.42);
+      background: radial-gradient(circle, rgba(255,255,255,0.08), rgba(15,0,45,0.65));
+    }
+
+    .logo::before, .logo::after {
+      content: "";
+      position: absolute;
+      width: 28px;
+      height: 52px;
+      border: 2px solid rgba(255,255,255,0.6);
+      border-radius: 50%;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+
+    .logo::before { left: -16px; }
+    .logo::after { right: -16px; }
+
+    .title-area {
+      flex: 1;
+      text-align: center;
+      min-width: 240px;
+    }
+
+    h1 {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(2.1rem, 6vw, 4.4rem);
+      line-height: 1;
+      color: #d7ecff;
+      text-shadow:
+        0 0 16px rgba(96, 202, 255, 0.75),
+        0 0 30px rgba(170, 52, 255, 0.68);
+    }
+
+    .subtitle {
+      color: rgba(255,255,255,0.72);
+      margin-top: 10px;
+      font-size: 0.98rem;
+    }
+
+    .timer-box {
+      min-width: 112px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 22px;
+      padding: 14px 16px;
+      background: rgba(255,255,255,0.06);
+      box-shadow: inset 0 0 20px rgba(255,255,255,0.025);
+    }
+
+    .timer-label {
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: rgba(255,255,255,0.62);
+    }
+
+    .timer {
+      font-family: 'Cinzel', serif;
+      font-size: 2rem;
+      font-weight: 900;
+      color: #78d9ff;
+      text-shadow: 0 0 18px rgba(104, 216, 255, 0.85);
+    }
+
+    .timer.warning {
+      color: #ff6bdb;
+      animation: blink 0.55s ease-in-out infinite;
+    }
+
+    @keyframes blink {
+      0%,100% { transform: scale(1); }
+      50% { transform: scale(1.18); }
+    }
+
+    .game-card {
+      position: relative;
+      min-height: 340px;
+      padding: clamp(24px, 5vw, 42px);
+      border-radius: 30px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background:
+        linear-gradient(145deg, rgba(255,255,255,0.08), rgba(255,255,255,0.025)),
+        radial-gradient(circle at 10% 10%, rgba(88, 198, 255, 0.18), transparent 34%),
+        radial-gradient(circle at 90% 90%, rgba(255, 74, 216, 0.14), transparent 38%);
+      box-shadow: 0 20px 70px rgba(0,0,0,0.35);
+      overflow: hidden;
+    }
+
+    .game-card::after {
+      content: "♥ ♦ ♣ ♠";
+      position: absolute;
+      right: 22px;
+      top: 18px;
+      color: rgba(255,255,255,0.08);
+      font-size: 3rem;
+      letter-spacing: 8px;
+      transform: rotate(8deg);
+    }
+
+    .difficulty {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 15px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 24px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.08);
+      color: #cfefff;
+    }
+
+    .question {
+      font-size: clamp(1.35rem, 3vw, 2.1rem);
+      line-height: 1.62;
+      color: var(--white-soft);
+      text-shadow: 0 0 14px rgba(91,178,255,0.18);
+      min-height: 140px;
+      display: flex;
+      align-items: center;
+      animation: questionIn 0.55s ease;
+    }
+
+    @keyframes questionIn {
+      from { opacity: 0; transform: translateY(16px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .answer {
+      max-height: 0;
+      opacity: 0;
+      overflow: hidden;
+      transition: 0.45s ease;
+      margin-top: 18px;
+      padding-left: 18px;
+      border-left: 3px solid rgba(126,218,255,0.65);
+      color: #ffe2ff;
+      font-size: 1.12rem;
+    }
+
+    .answer.show {
+      max-height: 190px;
+      opacity: 1;
+    }
+
+    .buttons {
+      margin-top: 34px;
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      border: none;
+      border-radius: 18px;
+      padding: 15px 25px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      color: white;
+      transition: 0.28s ease;
+    }
+
+    button:hover {
+      transform: translateY(-3px) scale(1.03);
+    }
+
+    .next-btn {
+      background: linear-gradient(135deg, #4ebeff, #7a35ff, #ff4fd8);
+      box-shadow: 0 0 28px rgba(87, 185, 255, 0.36);
+    }
+
+    .restart-btn {
+      background: rgba(255,255,255,0.09);
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+
+    .progress {
+      text-align: center;
+      margin-top: 23px;
+      color: rgba(255,255,255,0.67);
+      font-size: 0.95rem;
+    }
+
+    .queen-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle, rgba(255,0,90,0.32), rgba(5,0,18,0.94));
+      backdrop-filter: blur(10px);
+      animation: overlayIn 0.35s ease;
+      padding: 24px;
+    }
+
+    .queen-overlay.show {
+      display: flex;
+    }
+
+    @keyframes overlayIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .queen-card {
+      width: min(500px, 92vw);
+      min-height: 420px;
+      border-radius: 34px;
+      padding: 36px 28px;
+      text-align: center;
+      border: 2px solid rgba(255,255,255,0.18);
+      background:
+        radial-gradient(circle at top, rgba(255,255,255,0.11), transparent 28%),
+        linear-gradient(145deg, rgba(130,0,35,0.98), rgba(28,0,45,0.96));
+      box-shadow:
+        0 0 45px rgba(255, 0, 85, 0.54),
+        inset 0 0 35px rgba(255,255,255,0.05);
+      animation: queenPop 0.6s cubic-bezier(.17,.67,.35,1.45);
+      position: relative;
+      overflow: hidden;
+    }
+
+    @keyframes queenPop {
+      from { transform: scale(0.5) rotate(-10deg); opacity: 0; }
+      to { transform: scale(1) rotate(0); opacity: 1; }
+    }
+
+    .queen-figure {
+      width: 210px;
+      height: 250px;
+      margin: 0 auto 20px;
+      position: relative;
+    }
+
+    .queen-head {
+      position: absolute;
+      left: 50%;
+      top: 52px;
+      transform: translateX(-50%);
+      width: 92px;
+      height: 92px;
+      border-radius: 50%;
+      background: #ffd3c6;
+      box-shadow: 0 0 0 8px #8b001d, 0 0 28px rgba(255,0,70,0.5);
+      z-index: 3;
+    }
+
+    .queen-hair {
+      position: absolute;
+      left: 50%;
+      top: 44px;
+      transform: translateX(-50%);
+      width: 126px;
+      height: 106px;
+      background: #610019;
+      border-radius: 50% 50% 44% 44%;
+      z-index: 2;
+    }
+
+    .queen-crown {
+      position: absolute;
+      left: 50%;
+      top: 4px;
+      transform: translateX(-50%);
+      width: 130px;
+      height: 80px;
+      clip-path: polygon(0% 100%, 12% 25%, 34% 75%, 50% 10%, 66% 75%, 88% 25%, 100% 100%);
+      background: linear-gradient(135deg, #ffd56b, #fff0aa, #ff9e00);
+      z-index: 5;
+      filter: drop-shadow(0 0 14px rgba(255,215,0,0.55));
+    }
+
+    .queen-eye {
+      position: absolute;
+      top: 86px;
+      width: 10px;
+      height: 10px;
+      background: #1c0010;
+      border-radius: 50%;
+      z-index: 6;
+    }
+
+    .queen-eye.left { left: 88px; }
+    .queen-eye.right { right: 88px; }
+
+    .queen-mouth {
+      position: absolute;
+      left: 50%;
+      top: 116px;
+      transform: translateX(-50%);
+      width: 34px;
+      height: 12px;
+      border-bottom: 5px solid #9b0028;
+      border-radius: 50%;
+      z-index: 6;
+    }
+
+    .queen-body {
+      position: absolute;
+      left: 50%;
+      bottom: 0;
+      transform: translateX(-50%);
+      width: 160px;
+      height: 132px;
+      background: linear-gradient(135deg, #d10032, #5d0018);
+      clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+      z-index: 1;
+    }
+
+    .queen-heart {
+      position: absolute;
+      left: 50%;
+      bottom: 58px;
+      transform: translateX(-50%);
+      font-size: 2.4rem;
+      color: white;
+      z-index: 4;
+    }
+
+    .queen-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.7rem, 5vw, 2.6rem);
+      color: #fff1f1;
+      text-shadow: 0 0 20px rgba(255,0,80,0.8);
+      margin-bottom: 8px;
+    }
+
+    .queen-text {
+      color: rgba(255,255,255,0.78);
+      font-size: 1rem;
+    }
+
+    @media (max-width: 700px) {
+      body { padding: 14px; }
+      .topbar { justify-content: center; }
+      .logo { width: 76px; height: 76px; }
+      .timer-box { width: 100%; }
+      .character { opacity: 0.11; }
+      .moon { width: 90px; height: 90px; }
+      button { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wonderland-bg" id="wonderlandBg">
+    <div class="moon"></div>
+    <div class="hill left"></div>
+    <div class="hill right"></div>
+    <div class="mushroom m1"></div>
+    <div class="mushroom m2"></div>
+    <div class="mushroom m3"></div>
+
+    <div class="character rabbit">🐇</div>
+    <div class="character cat">😼</div>
+    <div class="character hat">🎩</div>
+    <div class="character cards">🃏</div>
+    <div class="character key">🗝️</div>
+  </div>
+
+  <div class="queen-overlay" id="queenOverlay">
+    <div class="queen-card">
+      <div class="queen-figure">
+        <div class="queen-crown"></div>
+        <div class="queen-hair"></div>
+        <div class="queen-head"></div>
+        <div class="queen-eye left"></div>
+        <div class="queen-eye right"></div>
+        <div class="queen-mouth"></div>
+        <div class="queen-body"></div>
+        <div class="queen-heart">♥</div>
+      </div>
+      <h2 class="queen-title">Tempo esgotado!</h2>
+      <p class="queen-text">A Rainha Vermelha revelou a resposta...</p>
+    </div>
+  </div>
+
+  <main class="container">
+
+    <section class="topbar">
+      <div class="logo">CoW</div>
+
+      <div class="title-area">
+        <h1>Wonderland Riddles</h1>
+        <p class="subtitle">Responda antes que a Rainha Vermelha apareça.</p>
+      </div>
+
+      <div class="timer-box">
+        <div class="timer-label">Tempo</div>
+        <div class="timer" id="timer">20</div>
+      </div>
+    </section>
+
+    <section class="game-card">
+      <div class="difficulty" id="difficulty">🫖 Fácil</div>
+
+      <div class="question" id="question">
+        Clique em “Começar” para entrar na toca do coelho.
+      </div>
+
+      <div class="answer" id="answer"></div>
+
+      <div class="buttons">
+        <button class="next-btn" id="nextBtn" onclick="nextRiddle()">Começar</button>
+        <button class="restart-btn" onclick="restartGame()">Recomeçar</button>
+      </div>
+
+      <div class="progress" id="progress">0 / 150 charadas</div>
+    </section>
+
+  </main>
+
+  <script>
+    const riddles = [
+      { d: 'Fácil', q: 'O que tem dentes, mas não morde?', a: 'O pente.' },
+      { d: 'Fácil', q: 'O que sobe, mas nunca desce?', a: 'A idade.' },
+      { d: 'Médio', q: 'Quanto mais você tira, maior eu fico. O que sou?', a: 'Um buraco.' },
+      { d: 'Fácil', q: 'O que fica molhado enquanto seca?', a: 'A toalha.' },
+      { d: 'Médio', q: 'O que anda com os pés na cabeça?', a: 'O piolho.' },
+      { d: 'Fácil', q: 'O que corre, mas não tem pernas?', a: 'A água.' },
+      { d: 'Médio', q: 'O que tem boca, mas não fala?', a: 'O rio.' },
+      { d: 'Fácil', q: 'O que quanto mais se perde, mais se tem?', a: 'O sono.' },
+      { d: 'Médio', q: 'O que pode encher uma sala sem ocupar espaço?', a: 'A luz.' },
+      { d: 'Difícil', q: 'Tenho cidades, mas não casas. Tenho rios, mas não água. O que sou?', a: 'Um mapa.' },
+      { d: 'Fácil', q: 'Qual é o céu que não tem estrelas?', a: 'O céu da boca.' },
+      { d: 'Médio', q: 'O que é seu, mas outras pessoas usam mais do que você?', a: 'Seu nome.' },
+      { d: 'Fácil', q: 'O que tem asa, mas não voa?', a: 'A xícara.' },
+      { d: 'Médio', q: 'O que nasce grande e morre pequeno?', a: 'O lápis.' },
+      { d: 'Fácil', q: 'O que sempre está na sua frente, mas você não consegue ver?', a: 'O futuro.' },
+      { d: 'Médio', q: 'O que tem cabeça, tem dente, tem barba e não é gente?', a: 'O alho.' },
+      { d: 'Fácil', q: 'O que quebra quando você fala?', a: 'O silêncio.' },
+      { d: 'Médio', q: 'O que entra na água e não se molha?', a: 'A sombra.' },
+      { d: 'Fácil', q: 'O que tem quatro pernas, mas não anda?', a: 'A mesa.' },
+      { d: 'Difícil', q: 'Quanto mais quente estou, mais fresco posso deixar você. O que sou?', a: 'O ventilador ligado em dia quente.' },
+      { d: 'Fácil', q: 'O que é cheio de buracos, mas ainda segura água?', a: 'A esponja.' },
+      { d: 'Médio', q: 'O que pode ser aberto, mas nunca fechado com chave?', a: 'Um sorriso.' },
+      { d: 'Fácil', q: 'O que dá muitas voltas e não sai do lugar?', a: 'O relógio.' },
+      { d: 'Médio', q: 'O que passa diante do sol sem fazer sombra?', a: 'O vento.' },
+      { d: 'Fácil', q: 'O que tem pescoço, mas não tem cabeça?', a: 'A garrafa.' },
+      { d: 'Médio', q: 'O que quanto mais se divide, maior fica?', a: 'A felicidade.' },
+      { d: 'Fácil', q: 'O que tem folha, mas não é árvore?', a: 'O livro.' },
+      { d: 'Médio', q: 'O que tem banco, mas não guarda dinheiro?', a: 'A praça.' },
+      { d: 'Fácil', q: 'O que cai no chão e não se machuca?', a: 'A chuva.' },
+      { d: 'Difícil', q: 'Sou leve, invisível e essencial, mas ninguém me segura por muito tempo. O que sou?', a: 'A respiração.' },
+      { d: 'Fácil', q: 'O que tem olho, mas não enxerga?', a: 'A agulha.' },
+      { d: 'Médio', q: 'O que quanto mais cresce, menos aparece?', a: 'A escuridão.' },
+      { d: 'Fácil', q: 'O que é que vai e volta sem sair do lugar?', a: 'A porta.' },
+      { d: 'Médio', q: 'O que tem coroa, mas não é rei?', a: 'O abacaxi.' },
+      { d: 'Fácil', q: 'Qual animal anda com as patas?', a: 'Todos que têm patas.' },
+      { d: 'Médio', q: 'O que fica no meio do ovo?', a: 'A letra V.' },
+      { d: 'Fácil', q: 'O que tem cama, mas não dorme?', a: 'O rio.' },
+      { d: 'Médio', q: 'O que quanto mais se lava, mais sujo fica?', a: 'A água da lavagem.' },
+      { d: 'Fácil', q: 'O que tem botão, mas não é roupa?', a: 'O controle remoto.' },
+      { d: 'Difícil', q: 'O que existe uma vez em minuto, duas em momento e nenhuma em ano?', a: 'A letra M.' },
+      { d: 'Fácil', q: 'O que tem orelha, mas não escuta?', a: 'A xícara.' },
+      { d: 'Médio', q: 'O que pode ser cortado, mas não com faca?', a: 'O caminho.' },
+      { d: 'Fácil', q: 'O que tem língua, mas não fala?', a: 'O sapato.' },
+      { d: 'Médio', q: 'O que é feito para andar, mas vive parado?', a: 'A estrada.' },
+      { d: 'Fácil', q: 'O que tem braço, mas não abraça?', a: 'A cadeira.' },
+      { d: 'Médio', q: 'O que tem número, mas não faz conta?', a: 'O telefone.' },
+      { d: 'Fácil', q: 'O que todo mundo pisa, mas ninguém vê caminhando?', a: 'O chão.' },
+      { d: 'Médio', q: 'O que pode subir pela chaminé para baixo, mas não pode descer para cima?', a: 'Um guarda-chuva aberto.' },
+      { d: 'Fácil', q: 'O que fica maior quando está de cabeça para baixo?', a: 'O número 6.' },
+      { d: 'Difícil', q: 'Tenho teclas, mas não abro portas. Tenho espaço, mas não sou quarto. O que sou?', a: 'O teclado.' }
+    ];
+
+    while (riddles.length < 150) {
+      const base = riddles.slice(0, 50).sort(() => Math.random() - 0.5);
+      base.forEach(item => {
+        if (riddles.length < 150) riddles.push({...item});
+      });
+    }
+
+    const timerEl = document.getElementById('timer');
+    const questionEl = document.getElementById('question');
+    const answerEl = document.getElementById('answer');
+    const difficultyEl = document.getElementById('difficulty');
+    const progressEl = document.getElementById('progress');
+    const nextBtn = document.getElementById('nextBtn');
+    const queenOverlay = document.getElementById('queenOverlay');
+    const bg = document.getElementById('wonderlandBg');
+
+    let index = -1;
+    let timeLeft = 20;
+    let timerInterval = null;
+    let locked = false;
+
+    function startTimer() {
+      clearInterval(timerInterval);
+      timeLeft = 20;
+      timerEl.textContent = timeLeft;
+      timerEl.classList.remove('warning');
+
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        timerEl.textContent = timeLeft;
+
+        if (timeLeft <= 5) timerEl.classList.add('warning');
+
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          timeExpired();
+        }
+      }, 1000);
+    }
+
+    function nextRiddle() {
+      if (locked) return;
+
+      index++;
+      if (index >= riddles.length) index = 0;
+
+      const item = riddles[index];
+
+      answerEl.classList.remove('show');
+      answerEl.textContent = '';
+
+      questionEl.style.animation = 'none';
+      void questionEl.offsetWidth;
+      questionEl.style.animation = 'questionIn 0.55s ease';
+
+      difficultyEl.textContent = getDifficultyIcon(item.d) + ' ' + item.d;
+      questionEl.textContent = item.q;
+      progressEl.textContent = `${index + 1} / 150 charadas`;
+      nextBtn.textContent = 'Próxima pergunta';
+
+      startTimer();
+    }
+
+    function timeExpired() {
+      if (index < 0) return;
+
+      locked = true;
+      queenOverlay.classList.add('show');
+
+      setTimeout(() => {
+        queenOverlay.classList.remove('show');
+        showAnswer();
+        locked = false;
+      }, 2300);
+    }
+
+    function showAnswer() {
+      const item = riddles[index];
+      answerEl.innerHTML = `<strong>Resposta:</strong> ${item.a}`;
+      answerEl.classList.add('show');
+    }
+
+    function restartGame() {
+      clearInterval(timerInterval);
+      index = -1;
+      locked = false;
+      timeLeft = 20;
+      timerEl.textContent = '20';
+      timerEl.classList.remove('warning');
+      questionEl.textContent = 'Clique em “Começar” para entrar na toca do coelho.';
+      answerEl.classList.remove('show');
+      answerEl.textContent = '';
+      difficultyEl.textContent = '🫖 Fácil';
+      progressEl.textContent = '0 / 150 charadas';
+      nextBtn.textContent = 'Começar';
+      queenOverlay.classList.remove('show');
+    }
+
+    function getDifficultyIcon(d) {
+      if (d === 'Fácil') return '🫖';
+      if (d === 'Médio') return '🗝️';
+      return '👑';
+    }
+
+    for (let i = 0; i < 42; i++) {
+      const orb = document.createElement('div');
+      orb.className = 'glow-orb';
+      orb.style.left = Math.random() * 100 + 'vw';
+      orb.style.animationDelay = Math.random() * 9 + 's';
+      orb.style.animationDuration = (8 + Math.random() * 8) + 's';
+      orb.style.opacity = 0.25 + Math.random() * 0.7;
+      bg.appendChild(orb);
+    }
+  </script>
+</body>
+</html>
